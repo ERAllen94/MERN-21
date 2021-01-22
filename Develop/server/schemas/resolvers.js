@@ -16,20 +16,21 @@ const resolvers = {
     }
   },
   Mutation: {
-    login: async (parent, {email, password}) => {
-      const user = await User.findOne({email});
+    login: async (parent, { email, password }) => {
       
-      if(user === false){
-          throw new AuthenticationError('invalid username')
-      }
+       const user = await User.findOne({ email });
+       if (!user) {
+         throw new AuthenticationError("invalid credentials");
+       }
 
-      
-      const checkPassword = user.isCorrectPassword(password);
+       const checkPassword = user.isCorrectPassword(password);
 
-      if(checkPassword === false){
-          throw new AuthenticationError('invalid password')
-      }
-        
+       if (!checkPassword) {
+         throw new AuthenticationError("invalid credentials");
+       }
+
+       const token = signToken(user);
+       return { token, user };
 
     },
     addUser: async (parent, args) => {
